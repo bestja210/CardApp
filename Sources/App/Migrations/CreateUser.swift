@@ -10,18 +10,28 @@ import Fluent
 
 struct CreateUser: Migration {
   func prepare(on database: Database) -> EventLoopFuture<Void> {
-    database.schema("users")
-      .id()
-      .field("firstName", .string, .required)
-      .field("lastName", .string, .required)
-      .field("middleName", .string)
-      .field("username", .string, .required)
-      .field("email", .string, .required)
-      .field("password", .string, .required)
+    database.enum("userType")
+      .case("admin")
+      .case("standard")
+      .case("restricted")
       .create()
+      .flatMap { userType in
+        database.schema("users")
+          .id()
+          .field("firstName", .string, .required)
+          .field("lastName", .string, .required)
+          .field("username", .string, .required)
+          .field("password", .string, .required)
+          .field("deleted_at", .datetime)
+          .field("userType", userType, .required)
+          .unique(on: "username")
+          .create()
+      }
   }
   
   func revert(on database: Database) -> EventLoopFuture<Void> {
-    database.schema("users").delete()
+    database.schema("users").delete().flatMap {
+      database.enum("userType").delete()
+    }
   }
 }

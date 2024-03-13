@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "FourthTriServer",
+    name: "QuizApp",
     platforms: [
        .macOS(.v13)
     ],
@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.7.2"),
     ],
     targets: [
-        .executableTarget(
+        .target(
             name: "App",
             dependencies: [
                 .product(name: "Fluent", package: "fluent"),
@@ -23,14 +23,10 @@ let package = Package(
                 .product(name: "Vapor", package: "vapor"),
             ]
         ),
+        .executableTarget(name: "Run", dependencies: [.target(name: "App")]),
         .testTarget(name: "AppTests", dependencies: [
-            .target(name: "App"),
-            .product(name: "XCTVapor", package: "vapor"),
-
-            // Workaround for https://github.com/apple/swift-package-manager/issues/6940
-            .product(name: "Vapor", package: "vapor"),
-            .product(name: "Fluent", package: "Fluent"),
-            .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
+          .target(name: "App"),
+          .product(name: "XCTVapor", package: "vapor"),
         ])
     ]
 )
